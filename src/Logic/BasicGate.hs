@@ -1,14 +1,11 @@
+--
+-- Basic Gate
+--
 
-module BasicGate where
-
---import Data.List
+module Logic.BasicGate where
 
 type Bin = Bool
 type LogicCircuit = [Bin] -> [Bin]
-
---
--- BASIC FUNCTIONS
---
 
 -- set/reset terminals
 
@@ -41,10 +38,6 @@ reset terminals
 reset_term :: [Bin] -> LogicCircuit
 reset_term [] xs = xs
 reset_term fs xs = zipWith (&&) xs (lc_not fs)
-
---
--- BASIC LOGIC CIRCUITS
---
 
 -- logical gates
 
@@ -130,18 +123,4 @@ NOR gate (multiple input)
 
 lc_nor :: LogicCircuit
 lc_nor xs = lc_not $ lc_or xs
-
--- Flip-Flops
-
-{-
-SR-Flip-Flop
-
--}
-
-lc_srff :: LogicCircuit
-lc_srff (s:r:q:q':_) = [s, r, x, x']
-  where
-    x_ = head $ lc_nand [s, q']
-    x' = head $ lc_nand [r, x_]
-    x  = head $ lc_nand [s, x']
 

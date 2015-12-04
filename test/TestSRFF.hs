@@ -1,20 +1,21 @@
 
 module Main where
 
-import BasicGate
+import Logic.BasicGate
+import Logic.FlipFlop
 
 main :: IO ()
 main = do
   let i1 = [True, True, False, True]
-      o1 = lg_srff i1
+      o1 = lc_srff i1
       i2 = reset_term [True, False, False, False] o1
-      o2 = lg_srff i2
+      o2 = lc_srff i2
       i3 = set_term [True, False, False, False] o2
-      o3 = lg_srff i3
+      o3 = lc_srff i3
       i4 = reset_term [False, True, False, False] o3
-      o4 = lg_srff i4
+      o4 = lc_srff i4
       i5 = set_term [False, True, False, False] o4
-      o5 = lg_srff i5
+      o5 = lc_srff i5
   putStrLn ("I1=" ++ show i1)
   putStrLn ("O1=" ++ show o1)
   putStrLn ("I2=" ++ show i2)
