@@ -6,6 +6,10 @@ module Logic.FlipFlop where
 
 import Logic.BasicGate
 
+--
+-- Flip Flop logics
+--  * '!' means negative logic.
+
 {-
 SR-FlipFlop
 
@@ -25,12 +29,9 @@ D-FlipFlop (edge trigger)
 
   IN : [!CL,!PR,D]
   OUT: [Q,!Q]
-  * '!' means negative logic.
 -}
 
 lc_dff :: LogicCircuit
-lc_dff (True:_) = [False, True]
-lc_dff (False:d:_) = [d, q']
-  where
-    q' = head $ lc_not [d]
-
+lc_dff (False:_)      = [False, True]
+lc_dff (True:False:_) = [True, False]
+lc_dff (_:_:d:_)      = [d, not d]
