@@ -110,10 +110,32 @@ decorder' b xs = map (\x -> if x == n then False else True) [0..mx]
 
 -- SELECTORS -----------------
 
+{- |
+2ch selectors
+
+  IN : [a,y0,y1]
+  OUT: [y?]
+
+>>> lc_selector2ch' [False, True, False]
+[True]
+>>> lc_selector2ch' [True, True, False]
+[False]
+>>> lc_selector2ch' [False, True, False] == lc_selector2ch'' [False, True, False]
+True
+>>> lc_selector2ch' [True, True, False] == lc_selector2ch'' [True, True, False]
+True
+
+-}
 
 --lc_selector2ch :: LogicCircuit
 --lc_selector2ch (a:xs) = not implemented
 
+lc_selector2ch' :: LogicCircuit
+lc_selector2ch' (False:y0:y1:_) = [y0]
+lc_selector2ch' (True :y0:y1:_) = [y1]
+
+lc_selector2ch'' :: LogicCircuit
+lc_selector2ch'' xs = selector' 2 xs
 
 {- |
 general selector function
@@ -139,12 +161,15 @@ selector' c xs = [xs'!!n]
 2
 >>> bin2int [True, True]
 3
+>>> bin2int [False, True, False, True]
+10
+>>> bin2int [True, False, False, True, True]
+25
 -}
 
 bin2int :: [Bool] -> Int
-bin2int xs = foldr (+) 0 nms 
+bin2int [] = 0
+bin2int (x:xs) = a + 2 * bin2int xs
   where
-    b2i = map (\x -> if x == True then 1 else 0) xs
-    bin = map (\x -> 2^x) [0..]
-    nms = zipWith (*) b2i bin
+    a = if x == True then 1 else 0
 
