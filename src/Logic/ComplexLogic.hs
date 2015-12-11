@@ -45,7 +45,7 @@ lc_decorder2 (a:b:_) = [y0, y1, y2, y3]
     [y3] = lc_nand [a, b]
 
 lc_decorder2' :: LogicCircuit
-lc_decorder2' xs = decorder' 2 xs
+lc_decorder2' = decorder' 2
 
 lc_decorder2'' :: LogicCircuit
 lc_decorder2'' (False:False:_) = [False, True, True, True]
@@ -100,7 +100,7 @@ lc_decorder4 (a:b:c:d:_) = [y0, y1, y2 , y3 , y4 , y5 , y6 , y7
     [y15] = lc_nand [a_b  , c_d]
 
 lc_decorder4' :: LogicCircuit
-lc_decorder4' xs = decorder' 4 xs
+lc_decorder4' = decorder' 4
 
 decorder' :: Int -> LogicCircuit
 decorder' b xs = map (\x -> if x == n then False else True) [0..mx]
@@ -135,7 +135,7 @@ lc_selector2ch' (False:y0:y1:_) = [y0]
 lc_selector2ch' (True :y0:y1:_) = [y1]
 
 lc_selector2ch'' :: LogicCircuit
-lc_selector2ch'' xs = selector' 2 xs
+lc_selector2ch'' = selector' 2
 
 {- |
 general selector function
@@ -172,4 +172,3 @@ bin2int [] = 0
 bin2int (x:xs) = a + 2 * bin2int xs
   where
     a = if x == True then 1 else 0
-

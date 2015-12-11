@@ -106,7 +106,7 @@ NAND gate (multiple input)
 -}
 
 lc_nand :: LogicCircuit
-lc_nand xs = lc_not $ lc_and xs
+lc_nand = lc_not . lc_and
 
 {- |
 NOR gate (multiple input)
@@ -122,5 +122,5 @@ NOR gate (multiple input)
 -}
 
 lc_nor :: LogicCircuit
-lc_nor xs = lc_not $ lc_or xs
+lc_nor = lc_not . lc_or
 
