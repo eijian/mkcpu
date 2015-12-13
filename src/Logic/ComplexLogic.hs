@@ -116,19 +116,24 @@ decorder' b xs = map (\x -> if x == n then False else True) [0..mx]
   IN : [a,y0,y1]
   OUT: [y?]
 
->>> lc_selector2ch' [False, True, False]
+>>> lc_selector2ch [False, True, False]
 [True]
->>> lc_selector2ch' [True, True, False]
+>>> lc_selector2ch [True, True, False]
 [False]
+>>> lc_selector2ch [False, True, False] == lc_selector2ch' [False, True, False]
+True
+>>> lc_selector2ch [True, True, False] == lc_selector2ch' [True, True, False]
+True
 >>> lc_selector2ch' [False, True, False] == lc_selector2ch'' [False, True, False]
 True
 >>> lc_selector2ch' [True, True, False] == lc_selector2ch'' [True, True, False]
 True
-
 -}
 
---lc_selector2ch :: LogicCircuit
---lc_selector2ch (a:xs) = not implemented
+lc_selector2ch :: LogicCircuit
+lc_selector2ch (a:y0:y1:_) = lc_or (lc_and [a', y0] ++ lc_and [a, y1])
+  where
+    [a'] = lc_not [a]
 
 lc_selector2ch' :: LogicCircuit
 lc_selector2ch' (False:y0:y1:_) = [y0]
@@ -136,6 +141,35 @@ lc_selector2ch' (True :y0:y1:_) = [y1]
 
 lc_selector2ch'' :: LogicCircuit
 lc_selector2ch'' = selector' 2
+
+{- |
+4ch selector
+
+  IN : [A,B,C0,C1,C2,C3]
+  OUT: [Y]
+
+>>> lc_selector4ch [False, False, True, False, False, False]
+[True]
+>>> lc_selector4ch [False, False, False, False, False, False]
+[False]
+>>> lc_selector4ch [False, False, True, False, False, False] == lc_selector4ch'' [False, False, True, False, False, False]
+True
+>>> lc_selector4ch [False, False, False, False, False, False] == lc_selector4ch'' [False, False, False, False, False, False]
+True
+
+-}
+
+lc_selector4ch :: LogicCircuit
+lc_selector4ch (a:b:c0:c1:c2:c3:_) = lc_or (y0 ++ y1 ++ y2 ++ y3)
+  where
+    [a', b'] = lc_not [a, b]
+    y0 = lc_and [c0, a', b']
+    y1 = lc_and [c1, a, b']
+    y2 = lc_and [c2, a', b]
+    y3 = lc_and [c3, a, b]
+
+lc_selector4ch'' :: LogicCircuit
+lc_selector4ch'' = selector' 4
 
 {- |
 general selector function
