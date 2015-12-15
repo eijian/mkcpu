@@ -6,17 +6,17 @@ import Logic.FlipFlop
 
 main :: IO ()
 main = do
-  let i1 = [False, True, True]
+  let i1 = [sLO, sHI, sHI]
       o1 = lc_dff i1
-      i2 = [False, False, True]
+      i2 = [sLO, sLO, sHI]
       o2 = lc_dff i2
-      i3 = [True, False, False]
+      i3 = [sHI, sLO, sLO]
       o3 = lc_dff i3
-      i4 = [True, False, True]
+      i4 = [sHI, sLO, sHI]
       o4 = lc_dff i4
-      i5 = [True, True, True]
+      i5 = [sHI, sHI, sHI]
       o5 = lc_dff i5
-      i6 = [True, True, False]
+      i6 = [sHI, sHI, sLO]
       o6 = lc_dff i6
   putStrLn ("I1=" ++ show i1)
   putStrLn ("O1=" ++ show o1)

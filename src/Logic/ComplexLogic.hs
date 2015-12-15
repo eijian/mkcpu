@@ -15,22 +15,22 @@ import Logic.FlipFlop
   IN : [A,B]
   OUT: [!Y0,!Y1,!Y2,!Y3]
 
->>> lc_decorder2 [False, False] == lc_decorder2' [False, False]
+>>> lc_decorder2 [sLO, sLO] == lc_decorder2' [sLO, sLO]
 True
->>> lc_decorder2 [True, False]  == lc_decorder2' [True, False]
+>>> lc_decorder2 [sHI, sLO]  == lc_decorder2' [sHI, sLO]
 True
->>> lc_decorder2 [False, True]  == lc_decorder2' [False, True]
+>>> lc_decorder2 [sLO, sHI]  == lc_decorder2' [sLO, sHI]
 True
->>> lc_decorder2 [True, True]   == lc_decorder2' [True, True]
+>>> lc_decorder2 [sHI, sHI]   == lc_decorder2' [sHI, sHI]
 True
 
->>> lc_decorder2 [False, False] == lc_decorder2'' [False, False]
+>>> lc_decorder2 [sLO, sLO] == lc_decorder2'' [sLO, sLO]
 True
->>> lc_decorder2 [True, False]  == lc_decorder2'' [True, False]
+>>> lc_decorder2 [sHI, sLO]  == lc_decorder2'' [sHI, sLO]
 True
->>> lc_decorder2 [False, True]  == lc_decorder2'' [False, True]
+>>> lc_decorder2 [sLO, sHI]  == lc_decorder2'' [sLO, sHI]
 True
->>> lc_decorder2 [True, True]   == lc_decorder2'' [True, True]
+>>> lc_decorder2 [sHI, sHI]   == lc_decorder2'' [sHI, sHI]
 True
 
 -}
@@ -48,10 +48,10 @@ lc_decorder2' :: LogicCircuit
 lc_decorder2' = decorder' 2
 
 lc_decorder2'' :: LogicCircuit
-lc_decorder2'' (False:False:_) = [False, True, True, True]
-lc_decorder2'' (True:False:_)  = [True, False, True, True]
-lc_decorder2'' (False:True:_)  = [True, True, False, True]
-lc_decorder2'' (True:True:_)   = [True, True, True, False]
+lc_decorder2'' (False:False:_) = [sLO, sHI, sHI, sHI]
+lc_decorder2'' (True:False:_)  = [sHI, sLO, sHI, sHI]
+lc_decorder2'' (False:True:_)  = [sHI, sHI, sLO, sHI]
+lc_decorder2'' (True:True:_)   = [sHI, sHI, sHI, sLO]
 
 {- |
 4bit decorder
@@ -59,11 +59,11 @@ lc_decorder2'' (True:True:_)   = [True, True, True, False]
   IN : [A,B,C,D]
   OUT: [!Y0,!Y1,!Y2,!Y3,!Y4,!Y5,!Y6,!Y7,!Y8,!Y9,!Y10,!Y11,!Y12,!Y13,!Y14,!Y15]
 
->>> lc_decorder4 [False, False, False, False] == lc_decorder4' [False, False, False, False]
+>>> lc_decorder4 [sLO, sLO, sLO, sLO] == lc_decorder4' [sLO, sLO, sLO, sLO]
 True
->>> lc_decorder4 [True, False, False, False] == lc_decorder4' [True, False, False, False]
+>>> lc_decorder4 [sHI, sLO, sLO, sLO] == lc_decorder4' [sHI, sLO, sLO, sLO]
 True
->>> lc_decorder4 [True, True, True, True] == lc_decorder4' [True, True, True, True]
+>>> lc_decorder4 [sHI, sHI, sHI, sHI] == lc_decorder4' [sHI, sHI, sHI, sHI]
 True
 
 -}
@@ -103,7 +103,7 @@ lc_decorder4' :: LogicCircuit
 lc_decorder4' = decorder' 4
 
 decorder' :: Int -> LogicCircuit
-decorder' b xs = map (\x -> if x == n then False else True) [0..mx]
+decorder' b xs = map (\x -> if x == n then sLO else sHI) [0..mx]
   where
     mx = 2^b - 1
     n = bin2int xs
@@ -116,17 +116,17 @@ decorder' b xs = map (\x -> if x == n then False else True) [0..mx]
   IN : [a,y0,y1]
   OUT: [y?]
 
->>> lc_selector2ch [False, True, False]
-[True]
->>> lc_selector2ch [True, True, False]
-[False]
->>> lc_selector2ch [False, True, False] == lc_selector2ch' [False, True, False]
+>>> lc_selector2ch [sLO, sHI, sLO] == [sHI]
 True
->>> lc_selector2ch [True, True, False] == lc_selector2ch' [True, True, False]
+>>> lc_selector2ch [sHI, sHI, sLO] == [sLO]
 True
->>> lc_selector2ch' [False, True, False] == lc_selector2ch'' [False, True, False]
+>>> lc_selector2ch [sLO, sHI, sLO] == lc_selector2ch' [sLO, sHI, sLO]
 True
->>> lc_selector2ch' [True, True, False] == lc_selector2ch'' [True, True, False]
+>>> lc_selector2ch [sHI, sHI, sLO] == lc_selector2ch' [sHI, sHI, sLO]
+True
+>>> lc_selector2ch' [sLO, sHI, sLO] == lc_selector2ch'' [sLO, sHI, sLO]
+True
+>>> lc_selector2ch' [sHI, sHI, sLO] == lc_selector2ch'' [sHI, sHI, sLO]
 True
 -}
 
@@ -148,13 +148,13 @@ lc_selector2ch'' = selector' 2
   IN : [A,B,C0,C1,C2,C3]
   OUT: [Y]
 
->>> lc_selector4ch [False, False, True, False, False, False]
-[True]
->>> lc_selector4ch [False, False, False, False, False, False]
-[False]
->>> lc_selector4ch [False, False, True, False, False, False] == lc_selector4ch'' [False, False, True, False, False, False]
+>>> lc_selector4ch [sLO, sLO, sHI, sLO, sLO, sLO] == [sHI]
 True
->>> lc_selector4ch [False, False, False, False, False, False] == lc_selector4ch'' [False, False, False, False, False, False]
+>>> lc_selector4ch [sLO, sLO, sLO, sLO, sLO, sLO] == [sLO]
+True
+>>> lc_selector4ch [sLO, sLO, sHI, sLO, sLO, sLO] == lc_selector4ch'' [sLO, sLO, sHI, sLO, sLO, sLO]
+True
+>>> lc_selector4ch [sLO, sLO, sLO, sLO, sLO, sLO] == lc_selector4ch'' [sLO, sLO, sLO, sLO, sLO, sLO]
 True
 
 -}
@@ -187,17 +187,17 @@ selector' c xs = [xs'!!n]
 -- support functions
 
 {- |
->>> bin2int [False, False]
+>>> bin2int [sLO, sLO]
 0
->>> bin2int [True, False]
+>>> bin2int [sHI, sLO]
 1
->>> bin2int [False, True]
+>>> bin2int [sLO, sHI]
 2
->>> bin2int [True, True]
+>>> bin2int [sHI, sHI]
 3
->>> bin2int [False, True, False, True]
+>>> bin2int [sLO, sHI, sLO, sHI]
 10
->>> bin2int [True, False, False, True, True]
+>>> bin2int [sHI, sLO, sLO, sHI, sHI]
 25
 -}
 
@@ -205,4 +205,4 @@ bin2int :: [Bool] -> Int
 bin2int [] = 0
 bin2int (x:xs) = a + 2 * bin2int xs
   where
-    a = if x == True then 1 else 0
+    a = if x == sHI then 1 else 0
