@@ -106,61 +106,61 @@ decorder' :: Int -> LogicCircuit
 decorder' b xs = map (\x -> if x == n then sLO else sHI) [0..mx]
   where
     mx = 2^b - 1
-    n = bin2int xs
+    n = bin2int (take b xs)
 
--- SELECTORS -----------------
+-- MULTIPLEXERS -----------------
 
 {- |
-2ch selectors
+2ch multiplexers
 
   IN : [a,y0,y1]
   OUT: [y?]
 
->>> lc_selector2ch [sLO, sHI, sLO] == [sHI]
+>>> lc_multiplexer2ch [sLO, sHI, sLO] == [sHI]
 True
->>> lc_selector2ch [sHI, sHI, sLO] == [sLO]
+>>> lc_multiplexer2ch [sHI, sHI, sLO] == [sLO]
 True
->>> lc_selector2ch [sLO, sHI, sLO] == lc_selector2ch' [sLO, sHI, sLO]
+>>> lc_multiplexer2ch [sLO, sHI, sLO] == lc_multiplexer2ch' [sLO, sHI, sLO]
 True
->>> lc_selector2ch [sHI, sHI, sLO] == lc_selector2ch' [sHI, sHI, sLO]
+>>> lc_multiplexer2ch [sHI, sHI, sLO] == lc_multiplexer2ch' [sHI, sHI, sLO]
 True
->>> lc_selector2ch' [sLO, sHI, sLO] == lc_selector2ch'' [sLO, sHI, sLO]
+>>> lc_multiplexer2ch' [sLO, sHI, sLO] == lc_multiplexer2ch'' [sLO, sHI, sLO]
 True
->>> lc_selector2ch' [sHI, sHI, sLO] == lc_selector2ch'' [sHI, sHI, sLO]
+>>> lc_multiplexer2ch' [sHI, sHI, sLO] == lc_multiplexer2ch'' [sHI, sHI, sLO]
 True
 -}
 
-lc_selector2ch :: LogicCircuit
-lc_selector2ch (a:y0:y1:_) = lc_or (lc_and [a', y0] ++ lc_and [a, y1])
+lc_multiplexer2ch :: LogicCircuit
+lc_multiplexer2ch (a:y0:y1:_) = lc_or (lc_and [a', y0] ++ lc_and [a, y1])
   where
     [a'] = lc_not [a]
 
-lc_selector2ch' :: LogicCircuit
-lc_selector2ch' (False:y0:y1:_) = [y0]
-lc_selector2ch' (True :y0:y1:_) = [y1]
+lc_multiplexer2ch' :: LogicCircuit
+lc_multiplexer2ch' (False:y0:y1:_) = [y0]
+lc_multiplexer2ch' (True :y0:y1:_) = [y1]
 
-lc_selector2ch'' :: LogicCircuit
-lc_selector2ch'' = selector' 2
+lc_multiplexer2ch'' :: LogicCircuit
+lc_multiplexer2ch'' = multiplexer' 2
 
 {- |
-4ch selector
+4ch multiplexer
 
   IN : [A,B,C0,C1,C2,C3]
   OUT: [Y]
 
->>> lc_selector4ch [sLO, sLO, sHI, sLO, sLO, sLO] == [sHI]
+>>> lc_multiplexer4ch [sLO, sLO, sHI, sLO, sLO, sLO] == [sHI]
 True
->>> lc_selector4ch [sLO, sLO, sLO, sLO, sLO, sLO] == [sLO]
+>>> lc_multiplexer4ch [sLO, sLO, sLO, sLO, sLO, sLO] == [sLO]
 True
->>> lc_selector4ch [sLO, sLO, sHI, sLO, sLO, sLO] == lc_selector4ch'' [sLO, sLO, sHI, sLO, sLO, sLO]
+>>> lc_multiplexer4ch [sLO, sLO, sHI, sLO, sLO, sLO] == lc_multiplexer4ch'' [sLO, sLO, sHI, sLO, sLO, sLO]
 True
->>> lc_selector4ch [sLO, sLO, sLO, sLO, sLO, sLO] == lc_selector4ch'' [sLO, sLO, sLO, sLO, sLO, sLO]
+>>> lc_multiplexer4ch [sLO, sLO, sLO, sLO, sLO, sLO] == lc_multiplexer4ch'' [sLO, sLO, sLO, sLO, sLO, sLO]
 True
 
 -}
 
-lc_selector4ch :: LogicCircuit
-lc_selector4ch (a:b:c0:c1:c2:c3:_) = lc_or (y0 ++ y1 ++ y2 ++ y3)
+lc_multiplexer4ch :: LogicCircuit
+lc_multiplexer4ch (a:b:c0:c1:c2:c3:_) = lc_or (y0 ++ y1 ++ y2 ++ y3)
   where
     [a', b'] = lc_not [a, b]
     y0 = lc_and [c0, a', b']
@@ -168,16 +168,16 @@ lc_selector4ch (a:b:c0:c1:c2:c3:_) = lc_or (y0 ++ y1 ++ y2 ++ y3)
     y2 = lc_and [c2, a', b]
     y3 = lc_and [c3, a, b]
 
-lc_selector4ch'' :: LogicCircuit
-lc_selector4ch'' = selector' 4
+lc_multiplexer4ch'' :: LogicCircuit
+lc_multiplexer4ch'' = multiplexer' 4
 
 {- |
-general selector function
+general multiplexer function
 
 -}
 
-selector' :: Int -> LogicCircuit
-selector' c xs = [xs'!!n]
+multiplexer' :: Int -> LogicCircuit
+multiplexer' c xs = [xs'!!n]
   where
     b = floor (logBase 2 (fromIntegral c))
     n = bin2int $ take b xs
@@ -201,7 +201,7 @@ selector' c xs = [xs'!!n]
 25
 -}
 
-bin2int :: [Bool] -> Int
+bin2int :: [Bin] -> Int
 bin2int [] = 0
 bin2int (x:xs) = a + 2 * bin2int xs
   where
