@@ -7,10 +7,8 @@ module Logic.BasicGate where
 type Bin = Bool
 type LogicCircuit = [Bin] -> [Bin]
 
-sHI :: Bin
-sHI = True
-sLO :: Bin
-sLO = False
+sHI = True  :: Bin
+sLO = False :: Bin
 
 -- set/reset terminals
 
