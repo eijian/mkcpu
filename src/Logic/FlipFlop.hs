@@ -41,21 +41,22 @@ D-FlipFlop (edge trigger)
   IN : [!CL,!PR,D]
   OUT: [Q,!Q]
 
->>> lc_dff [sLO, sHI, sHI] == [sLO,sHI]
+>>> lc_dff' [sLO, sHI, sHI] == [sLO,sHI]
 True
->>> lc_dff [sLO, sLO, sHI] == [sLO,sHI]
+>>> lc_dff' [sLO, sLO, sHI] == [sLO,sHI]
 True
->>> lc_dff [sHI, sLO, sLO] == [sHI,sLO]
+>>> lc_dff' [sHI, sLO, sLO] == [sHI,sLO]
 True
->>> lc_dff [sHI, sLO, sHI] == [sHI,sLO]
+>>> lc_dff' [sHI, sLO, sHI] == [sHI,sLO]
 True
->>> lc_dff [sHI, sHI, sHI] == [sHI,sLO]
+>>> lc_dff' [sHI, sHI, sHI] == [sHI,sLO]
 True
->>> lc_dff [sHI, sHI, sLO] == [sLO,sHI]
+>>> lc_dff' [sHI, sHI, sLO] == [sLO,sHI]
 True
 -}
 
-lc_dff :: LogicCircuit
-lc_dff (False:_)         = [sLO, sHI]
-lc_dff (True :False:_)   = [sHI, sLO]
-lc_dff (_    :_    :d:_) = [d, not d]
+lc_dff' :: LogicCircuit
+lc_dff' (False:_)         = [sLO, sHI]
+lc_dff' (True :False:_)   = [sHI, sLO]
+lc_dff' (_    :_    :d:_) = [d, not d]
+
