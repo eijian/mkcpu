@@ -59,11 +59,14 @@ lc_decorder2'' (True:True:_)   = [sHI, sHI, sHI, sLO]
   IN : [A,B,C,D]
   OUT: [!Y0,!Y1,!Y2,!Y3,!Y4,!Y5,!Y6,!Y7,!Y8,!Y9,!Y10,!Y11,!Y12,!Y13,!Y14,!Y15]
 
->>> lc_decorder4 [sLO, sLO, sLO, sLO] == lc_decorder4' [sLO, sLO, sLO, sLO]
+>>> let d0 = toBits "0000"
+>>> lc_decorder4 d0 == lc_decorder4' d0
 True
->>> lc_decorder4 [sHI, sLO, sLO, sLO] == lc_decorder4' [sHI, sLO, sLO, sLO]
+>>> let d1 = toBits "1000"
+>>> lc_decorder4 d1 == lc_decorder4' d1
 True
->>> lc_decorder4 [sHI, sHI, sHI, sHI] == lc_decorder4' [sHI, sHI, sHI, sHI]
+>>> let d2 = toBits "1111"
+>>> lc_decorder4 d2 == lc_decorder4' d2
 True
 
 -}
@@ -142,9 +145,9 @@ True
 True
 >>> lc_multiplexer2ch [sHI, sHI, sLO] == lc_multiplexer2ch' [sHI, sHI, sLO]
 True
->>> lc_multiplexer2ch' [sLO, sHI, sLO] == lc_multiplexer2ch'' [sLO, sHI, sLO]
+>>> lc_multiplexer2ch [sLO, sLO, sHI] == lc_multiplexer2ch' [sLO, sLO, sHI]
 True
->>> lc_multiplexer2ch' [sHI, sHI, sLO] == lc_multiplexer2ch'' [sHI, sHI, sLO]
+>>> lc_multiplexer2ch' [sHI, sLO, sHI] == lc_multiplexer2ch' [sHI, sLO, sHI]
 True
 -}
 
@@ -170,9 +173,11 @@ lc_multiplexer2ch'' = multiplexer' 2
 True
 >>> lc_multiplexer4ch [sLO, sLO, sLO, sLO, sLO, sLO] == [sLO]
 True
->>> lc_multiplexer4ch [sLO, sLO, sHI, sLO, sLO, sLO] == lc_multiplexer4ch'' [sLO, sLO, sHI, sLO, sLO, sLO]
+>>> let d0 = toBits "001000"
+>>> lc_multiplexer4ch d0 == lc_multiplexer4ch'' d0
 True
->>> lc_multiplexer4ch [sLO, sLO, sLO, sLO, sLO, sLO] == lc_multiplexer4ch'' [sLO, sLO, sLO, sLO, sLO, sLO]
+>>> let d1 = toBits "000000"
+>>> lc_multiplexer4ch d1 == lc_multiplexer4ch'' d1
 True
 
 -}
@@ -221,6 +226,4 @@ multiplexer' c xs = [xs'!!n]
 
 bin2int :: [Bin] -> Int
 bin2int [] = 0
-bin2int (x:xs) = a + 2 * bin2int xs
-  where
-    a = if x == sHI then 1 else 0
+bin2int (x:xs) = (bin2i x) + 2 * bin2int xs

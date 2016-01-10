@@ -4,11 +4,64 @@
 
 module Logic.BasicGate where
 
+import Data.List
+
+--
+-- Basic definitions
+--
+
 type Bin = Bool
 type LogicCircuit = [Bin] -> [Bin]
 
 sHI = True  :: Bin
 sLO = False :: Bin
+
+--
+-- UTILITIES
+--
+
+c2bin :: Char -> Bin
+c2bin '0' = sLO
+c2bin '1' = sHI
+
+bin2c :: Bin -> Char
+bin2c b
+  |b == sLO = '0'
+  |b == sHI = '1'
+
+i2bin :: Int -> Bin
+i2bin 0 = sLO
+i2bin 1 = sHI
+
+bin2i :: Bin -> Int
+bin2i b
+  |b == sLO = 0
+  |b == sHI = 1
+
+
+{- |
+  toBits: produce 'Bin' list from input String
+
+  IN : "00101101101010110000101110..."
+  OUT: [sLO, sLO, sHI, sLO, sHI, sHI, ...]
+
+>>> toBits "00101101" == [sLO, sLO, sHI, sLO, sHI, sHI, sLO, sHI]
+True
+>>> toBits "11001010" == [sHI, sHI, sLO, sLO, sHI, sLO, sHI, sLO]
+True
+
+-}
+
+toBits :: String -> [Bin]
+toBits cs = map (c2bin) $ filter (\c -> isInfixOf [c] "01") cs
+
+{- |
+  toStr: convert from [Bin] to string
+
+-}
+
+toStr :: [Bin] -> String
+toStr xs = map (bin2c) xs
 
 -- set/reset terminals
 
@@ -42,7 +95,9 @@ reset_term :: [Bin] -> LogicCircuit
 reset_term [] xs = xs
 reset_term fs xs = zipWith (&&) xs (lc_not fs)
 
--- logical gates
+--
+-- LOGICAL GATES
+--
 
 {- |
 AND gate (multiple input)
