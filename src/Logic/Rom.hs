@@ -44,9 +44,9 @@ True
 -}
 
 lc_rom16 :: LogicCircuit
-lc_rom16 xs = concat $ map (\x -> mergeBits x omem) [0..7]
+lc_rom16 xs = lc_not $ concat $ map (\x -> mergeBits x omem) [0..7]
   where
-    mem = split8 $ take (8*msize) ((lc_not $ drop 4 xs) ++ repeat sHI)
+    mem = split8 $ take (8*msize) ((drop 4 xs) ++ repeat sLO)
     adr = lc_decorder4 $ take 4 xs
     omem = map toSwitch (zip adr mem) -- out of switches (16 bytes)
 
