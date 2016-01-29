@@ -133,7 +133,7 @@ True
 split8 :: [Bin] -> [[Bin]]
 split8 [] = []
 split8 xs
-  |length xs < 8 = [take 8 (xs ++ repeat sHI)]
+  |length xs < 8 = [take 8 (xs ++ repeat sLO)]
   |otherwise     = l:(split8 ls)
     where
       l  = take 8 xs
