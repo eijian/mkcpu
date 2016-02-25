@@ -43,8 +43,9 @@ lc_register1 (c:l:d0:d1:_) = take 1 $ lc_dff_cp ([c, sHI] ++ d)
 lc_register4 :: LogicCircuit
 lc_register4 (c:l:ds) = concat $ map (procReg1 c l) $ zip d0 d1
   where
-    d0 = take 4 $ drop 2 ds
-    d1 = take 4 $ drop 6 ds
+    w = 4
+    d0 = take w ds
+    d1 = take w $ drop w ds
 
     procReg1 :: Bin -> Bin -> (Bin, Bin) -> [Bin]
     procReg1 c l (d0, d1) = lc_register1 [c, l, d0, d1]
