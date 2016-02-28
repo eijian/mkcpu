@@ -11,18 +11,22 @@ import Logic.ComplexLogic
 {- |
 1bit register
 
-  IN : [CLR,LD,A,B]
+  IN : [!CLR,!LD,A,B]
   OUT: [Q]
+
+  when CLO = LO -> Q = LO
+  when LD  = HI -> Q = A
+  when LD  = LO -> Q = B
 
 >>> lc_register1 [sLO, sLO, sHI, sHI] == [sLO]  -- clear
 True
->>> lc_register1 [sHI, sLO, sHI, sLO] == [sHI]  -- select A
+>>> lc_register1 [sHI, sHI, sHI, sLO] == [sHI]  -- select A
 True
->>> lc_register1 [sHI, sLO, sLO, sHI] == [sLO]  -- select A
+>>> lc_register1 [sHI, sHI, sLO, sHI] == [sLO]  -- select A
 True
->>> lc_register1 [sHI, sHI, sHI, sLO] == [sLO]  -- select B
+>>> lc_register1 [sHI, sLO, sHI, sLO] == [sLO]  -- select B
 True
->>> lc_register1 [sHI, sHI, sLO, sHI] == [sHI]  -- select B
+>>> lc_register1 [sHI, sLO, sLO, sHI] == [sHI]  -- select B
 True
 
 -}
@@ -30,12 +34,12 @@ True
 lc_register1 :: LogicCircuit
 lc_register1 (c:l:a:b:_) = take 1 $ lc_dff_cp ([c, sHI] ++ d)
   where
-    d = lc_multiplexer2ch [l, a, b]
+    d = lc_multiplexer2ch [l, b, a]
 
 {- |
 4bit register
 
-  IN : [CLR,LD,A0,A1,A2,A3,B0,B1,B2,B3]
+  IN : [!CLR,!LD,A0,A1,A2,A3,B0,B1,B2,B3]
   OUT: [Q0,Q1,Q2,Q3]
 
 >>> let d0 = toBits "0000"
@@ -46,9 +50,9 @@ lc_register1 (c:l:a:b:_) = take 1 $ lc_dff_cp ([c, sHI] ++ d)
 True
 >>> lc_register4 ([sLO, sHI] ++ d1 ++ d2) == d0  -- when CLR = ON
 True
->>> lc_register4 ([sHI, sLO] ++ d1 ++ d2) == d1  -- when LD = OFF
+>>> lc_register4 ([sHI, sHI] ++ d1 ++ d2) == d1  -- when LD = OFF
 True
->>> lc_register4 ([sHI, sHI] ++ d1 ++ d2) == d2  -- when LD = ON
+>>> lc_register4 ([sHI, sLO] ++ d1 ++ d2) == d2  -- when LD = ON
 True
 
 -}
@@ -59,18 +63,36 @@ lc_register4 = lc_register 4
 {- |
 n bit register
 
-  IN : bitwidth [CLR,LD,A(n bit),B(nbit)]
+  IN : bitwidth [!CLR,!LD,A(n bit),B(n bit)]
   OUT: [Q(n bit)]
 
   * 'bitwidth' has to be equal or bigger than 2
 
 -- >>> lc_register 1 [sHI, sHI, sHI, sHI, sHI, sHI] == [sHI, sHI]
+>>> lc_register 0 [sLO, sLO] == []
+True
+>>> lc_register 0 [sLO, sHI] == []
+True
+>>> lc_register 0 [sHI, sHI] == []
+True
+>>> lc_register 1 [sLO, sLO, sLO, sHI] == [sLO]
+True
+>>> lc_register 1 [sLO, sHI, sLO, sHI] == [sLO]
+False
+>>> lc_register 1 [sHI, sLO, sLO, sHI] == [sHI]
+False
+>>> lc_register 1 [sHI, sLO, sHI, sLO] == [sLO]
+False
+>>> lc_register 1 [sHI, sHI, sLO, sHI] == [sLO]
+False
+>>> lc_register 1 [sHI, sHI, sHI, sLO] == [sHI]
+False
 
 -}
 
 lc_register :: Int -> LogicCircuit
 lc_register w (c:l:ds)
-  | w < 2       = error ("bit width is invalid (" ++ show w ++ ")")
+  | w < 0       = error ("bit width is invalid (" ++ show w ++ ")")
   | len < w * 2 = error ("no enough input (" ++ show len ++ ")")
   | otherwise   = concat $ map (procReg1 c l) $ zip a b
   where
@@ -79,5 +101,4 @@ lc_register w (c:l:ds)
     b = take w $ drop w ds
     procReg1 :: Bin -> Bin -> (Bin, Bin) -> [Bin]
     procReg1 c l (a, b) = lc_register1 [c, l, a, b]
-
 
