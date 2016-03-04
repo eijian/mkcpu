@@ -41,7 +41,9 @@ lc_register1 (c:l:d0:d1:_) = take 1 $ lc_dff_cp ([c, sHI] ++ d)
 -}
 
 lc_register4 :: LogicCircuit
-lc_register4 (c:l:ds) = concat $ map (procReg1 c l) $ zip d0 d1
+lc_register4 (c:l:ds)
+  | length ds < 4 * 2 = error "no enouth data"
+  | otherwise = concat $ map (procReg1 c l) $ zip d0 d1
   where
     w = 4
     d0 = take w ds

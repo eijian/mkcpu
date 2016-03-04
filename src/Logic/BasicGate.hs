@@ -182,3 +182,24 @@ True
 lc_nor :: LogicCircuit
 lc_nor = lc_not . lc_or
 
+{- |
+XOR gate (two input)
+
+>>> lc_xor [sLO, sLO] == [sLO]
+True
+>>> lc_xor [sLO, sHI] == [sHI]
+True
+>>> lc_xor [sHI, sLO] == [sHI]
+True
+>>> lc_xor [sHI, sHI] == [sLO]
+True
+
+
+-}
+
+lc_xor :: LogicCircuit
+lc_xor (a:b:_) = lc_or (lc_and ([a] ++ b') ++ lc_and ([b] ++ a'))
+  where
+    a' = lc_not [a]
+    b' = lc_not [b]
+
