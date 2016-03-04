@@ -131,13 +131,16 @@ True
 -}
 
 split8 :: [Bin] -> [[Bin]]
-split8 [] = []
-split8 xs
-  |length xs < 8 = [take 8 (xs ++ repeat sLO)]
-  |otherwise     = l:(split8 ls)
+split8 = split 8
+
+split :: Int -> [Bin] -> [[Bin]]
+split w [] = []
+split w xs
+  |length xs < w = [take w (xs ++ repeat sLO)]
+  |otherwise     = l:(split w ls)
     where
-      l  = take 8 xs
-      ls = drop 8 xs
+      l  = take w xs
+      ls = drop w xs
 
 {-
 * バイト列から128bitのリスト作る
