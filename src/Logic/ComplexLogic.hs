@@ -38,11 +38,18 @@ True
 lc_decorder2 :: LogicCircuit
 lc_decorder2 (a:b:_) = [y0, y1, y2, y3]
   where
+    [a', b'] = (!>) [a, b]
+    [y0] = [a'] !*> [b']
+    [y1] = [a ] !*> [b']
+    [y2] = [a'] !*> [b ]
+    [y3] = [a ] !*> [b ]
+{-
     [a', b'] = lc_not [a, b]
     [y0] = lc_nand [a', b']
     [y1] = lc_nand [a, b']
     [y2] = lc_nand [a', b]
     [y3] = lc_nand [a, b]
+-}
 
 lc_decorder2' :: LogicCircuit
 lc_decorder2' = decorder' 2

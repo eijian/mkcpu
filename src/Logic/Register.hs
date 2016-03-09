@@ -173,12 +173,8 @@ True
 lc_counter4 :: LogicCircuit
 lc_counter4 (c:l:ds) = lc_register4 ([c, l] ++ concat [d0, d1, d2, d3, b])
   where
-    a = take 4 ds
+    [a0, a1, a2, a3] = take 4 ds
     b = take 4 $ drop 4 ds
-    a0 = a!!0
-    a1 = a!!1
-    a2 = a!!2
-    a3 = a!!3
     d0 = lc_not [a0]
     d1 = lc_xor [a1, a0]
     d2 = lc_xor ([a2] ++ lc_and [a1, a0])

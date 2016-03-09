@@ -116,6 +116,12 @@ lc_and :: LogicCircuit
 lc_and [] = [sLO]
 lc_and xs = [and xs]
 
+-- UTILITY OPERATOR
+
+(*>) :: [Bin] -> [Bin] -> [Bin]
+a *> b = lc_and (a ++ b)
+
+
 {- |
 OR gate (multiple input)
 
@@ -132,6 +138,12 @@ True
 lc_or :: LogicCircuit
 lc_or [] = [sLO]
 lc_or xs = [or xs]
+
+-- UTILITY OPERATOR
+
+(+>) :: [Bin] -> [Bin] -> [Bin]
+a +> b = lc_or (a ++ b)
+
 
 {- |
 NOT gate (multiple input)
@@ -150,6 +162,11 @@ lc_not :: LogicCircuit
 lc_not [] = [sHI]
 lc_not xs = map (not) xs
 
+-- UTILITY OPERATOR
+
+(!>) :: [Bin] -> [Bin]
+(!>) a = lc_not a
+
 {- |
 NAND gate (multiple input)
 
@@ -165,6 +182,11 @@ True
 
 lc_nand :: LogicCircuit
 lc_nand = lc_not . lc_and
+
+-- UTILITY OPERATOR
+
+(!*>) :: [Bin] -> [Bin] -> [Bin]
+a !*> b = lc_nand (a ++ b)
 
 {- |
 NOR gate (multiple input)
@@ -182,6 +204,11 @@ True
 lc_nor :: LogicCircuit
 lc_nor = lc_not . lc_or
 
+-- UTILITY OPERATOR
+
+(!+>) :: [Bin] -> [Bin] -> [Bin]
+a !+> b = lc_nor (a ++ b)
+
 {- |
 XOR gate (two input)
 
@@ -198,8 +225,20 @@ True
 -}
 
 lc_xor :: LogicCircuit
+lc_xor (a:b:_) = ([a] *> b') +> ([b] *> a')
+  where
+    a' = (!>) [a]
+    b' = (!>) [b]
+
+{-
 lc_xor (a:b:_) = lc_or (lc_and ([a] ++ b') ++ lc_and ([b] ++ a'))
   where
     a' = lc_not [a]
     b' = lc_not [b]
+-}
+
+-- UTILITY OPERATOR
+
+(>+<) :: [Bin] -> [Bin] -> [Bin]
+a >+< b = lc_xor (a ++ b)
 
