@@ -179,5 +179,3 @@ lc_counter4 (c:l:ds) = lc_register4 ([c, l] ++ concat [d0, d1, d2, d3, b])
     d1 = lc_xor [a1, a0]
     d2 = lc_xor ([a2] ++ lc_and [a1, a0])
     d3 = lc_xor ([a3] ++ lc_and [a2, a1, a0])
-
-
