@@ -2,7 +2,10 @@
 -- Register
 --
 
-module Logic.Register where
+module Logic.Register (
+  lc_register4,
+  lc_counter4
+) where
 
 import Logic.BasicGate
 import Logic.FlipFlop
@@ -32,9 +35,9 @@ True
 -}
 
 lc_register1 :: LogicCircuit
-lc_register1 (c:l:a:b:_) = take 1 $ lc_dff_cp ([c, sHI] ++ d)
+lc_register1 (c:l:a:b:_) = take 1 $ lc_dff_cp [c, sHI, d]
   where
-    d = lc_multiplexer2ch [l, b, a]
+    [d] = lc_multiplexer2ch [l, b, a]
 
 {- |
 4bit register
@@ -165,17 +168,19 @@ True
 True
 >>> lc_counter4 ([sLO, sHI] ++ d5 ++ d15) == d0
 True
->>> lc_counter4 ([sHI, sLO] ++ d5 ++ d15) == d15
+>>> lc_counter4 ([sHI, sLO] ++ d5 ++ d10) == d10
 True
 
 -}
 
 lc_counter4 :: LogicCircuit
-lc_counter4 (c:l:ds) = lc_register4 ([c, l] ++ concat [d0, d1, d2, d3, b])
+lc_counter4 (c:l:ds) = lc_register4 ([c, l, d0, d1, d2, d3] ++ b)
   where
-    [a0, a1, a2, a3] = take 4 ds
-    b = take 4 $ drop 4 ds
-    d0 = lc_not [a0]
-    d1 = lc_xor [a1, a0]
-    d2 = lc_xor ([a2] ++ lc_and [a1, a0])
-    d3 = lc_xor ([a3] ++ lc_and [a2, a1, a0])
+    bw = 4
+    [a0, a1, a2, a3] = take bw ds
+    b = take bw $ drop bw ds
+    d0 = (!>) a0
+    d1 = a1 <+> a0
+    d2 = a2 <+> (a1 &> a0)
+    d3 = a3 <+> (a2 &> a1 &> a0)
+

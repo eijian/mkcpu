@@ -2,7 +2,11 @@
 -- Flip Flop
 --
 
-module Logic.FlipFlop where
+module Logic.FlipFlop (
+  lc_srff
+, lc_dff
+, lc_dff_cp
+) where
 
 import Logic.BasicGate
 
@@ -35,11 +39,11 @@ True
 lc_srff :: LogicCircuit
 lc_srff (s:r:q0:q0':_) = [q, q']
   where
-    q_ = head $ lc_nand [s, q0']
-    q' = head $ lc_nand [r, q_]
-    q  = head $ lc_nand [s, q']
-lc_srff (s:r:_) = lc_srff [s, r, sLO, sLO]
-lc_srff _ = lc_srff [sHI, sHI, sLO, sLO]
+    q_ = s !&> q0'
+    q' = r !&> q_
+    q  = s !&> q'
+lc_srff []       = lc_srff [sHI, sHI, sLO, sLO]
+lc_srff (s:r:[]) = lc_srff [s, r, sLO, sLO]
 
 {- |
 D-FlipFlop (edge trigger)
@@ -71,16 +75,16 @@ True
 
 lc_dff :: LogicCircuit
 lc_dff [] = lc_dff [sLO]
-lc_dff (d:_) = lc_srff (x1' ++ x2' ++ [sLO, sHI])
+lc_dff (d:_) = lc_srff [x1', x2', sLO, sHI]
   where
     -- before clock (C = LO)
-    x1 = [sHI]  -- because C = LO
-    x2 = [sHI]  -- because C = LO
-    x3 = lc_nand ([d] ++ x2)
-    x0 = lc_nand (x1  ++ x3)
+    x1 = sHI  -- because C = LO
+    x2 = sHI  -- because C = LO
+    x3 = d  !&> x2
+    x0 = x1 !&> x3
     -- clock in (C = HI)
-    x1' = lc_nand ([sHI] ++ x0)
-    x2' = lc_nand ([sHI] ++ x1' ++ x3)
+    x1' = sHI !&> x0
+    x2' = (!>) (sHI &> x1' &> x3)  -- I can't use NAND op...
 
 {-|
 D-FlipFlop (edge trigger) with Clear/Preset
@@ -107,7 +111,7 @@ True
 -}
 
 lc_dff_cp :: LogicCircuit
-lc_dff_cp (c:p:d:_) = lc_dff d'
+lc_dff_cp (c:p:d:_) = lc_dff [d']
   where
-    d' = lc_and ([c] ++ lc_or (lc_not [p] ++ [d]))
+    d' = c &> ((!>) p |> d)
 

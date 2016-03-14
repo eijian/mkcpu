@@ -2,7 +2,9 @@
 -- ROM module
 --
 
-module Logic.Rom where
+module Logic.Rom (
+  lc_rom16
+) where
 
 import Logic.BasicGate
 import Logic.ComplexLogic

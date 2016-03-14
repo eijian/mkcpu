@@ -2,7 +2,12 @@
 -- Complex Logic
 --
 
-module Logic.ComplexLogic where
+module Logic.ComplexLogic (
+  lc_decorder2
+, lc_decorder4
+, lc_multiplexer2ch
+, lc_multiplexer4ch
+) where
 
 import Logic.BasicGate
 import Logic.FlipFlop
@@ -38,18 +43,12 @@ True
 lc_decorder2 :: LogicCircuit
 lc_decorder2 (a:b:_) = [y0, y1, y2, y3]
   where
-    [a', b'] = (!>) [a, b]
-    [y0] = [a'] !*> [b']
-    [y1] = [a ] !*> [b']
-    [y2] = [a'] !*> [b ]
-    [y3] = [a ] !*> [b ]
-{-
-    [a', b'] = lc_not [a, b]
-    [y0] = lc_nand [a', b']
-    [y1] = lc_nand [a, b']
-    [y2] = lc_nand [a', b]
-    [y3] = lc_nand [a, b]
--}
+    a' = (!>) a
+    b' = (!>) b
+    y0 = a' !&> b'
+    y1 = a  !&> b'
+    y2 = a' !&> b
+    y3 = a  !&> b
 
 lc_decorder2' :: LogicCircuit
 lc_decorder2' = decorder' 2
@@ -83,31 +82,34 @@ lc_decorder4 (a:b:c:d:_) = [y0, y1, y2 , y3 , y4 , y5 , y6 , y7
                            ,y8, y9, y10, y11, y12, y13, y14, y15
                            ]
   where
-    [a', b', c', d'] = lc_not [a, b, c, d]
-    [a'_b'] = lc_and [a', b']
-    [a_b' ] = lc_and [a , b']
-    [a'_b ] = lc_and [a', b ]
-    [a_b  ] = lc_and [a , b ]
-    [c'_d'] = lc_and [c', d']
-    [c_d' ] = lc_and [c , d']
-    [c'_d ] = lc_and [c', d ]
-    [c_d  ] = lc_and [c , d ]
-    [y0]  = lc_nand [a'_b', c'_d']
-    [y1]  = lc_nand [a_b' , c'_d']
-    [y2]  = lc_nand [a'_b , c'_d']
-    [y3]  = lc_nand [a_b  , c'_d']
-    [y4]  = lc_nand [a'_b', c_d' ]
-    [y5]  = lc_nand [a_b' , c_d' ]
-    [y6]  = lc_nand [a'_b , c_d' ]
-    [y7]  = lc_nand [a_b  , c_d' ]
-    [y8]  = lc_nand [a'_b', c'_d]
-    [y9]  = lc_nand [a_b' , c'_d]
-    [y10] = lc_nand [a'_b , c'_d]
-    [y11] = lc_nand [a_b  , c'_d]
-    [y12] = lc_nand [a'_b', c_d]
-    [y13] = lc_nand [a_b' , c_d]
-    [y14] = lc_nand [a'_b , c_d]
-    [y15] = lc_nand [a_b  , c_d]
+    a' = (!>) a
+    b' = (!>) b
+    c' = (!>) c
+    d' = (!>) d
+    a'_b' = a' &> b'
+    a_b'  = a  &> b'
+    a'_b  = a' &> b
+    a_b   = a  &> b
+    c'_d' = c' &> d'
+    c_d'  = c  &> d'
+    c'_d  = c' &> d
+    c_d   = c  &> d
+    y0  = a'_b' !&> c'_d'
+    y1  = a_b'  !&> c'_d'
+    y2  = a'_b  !&> c'_d'
+    y3  = a_b   !&> c'_d'
+    y4  = a'_b' !&> c_d'
+    y5  = a_b'  !&> c_d'
+    y6  = a'_b  !&> c_d'
+    y7  = a_b   !&> c_d'
+    y8  = a'_b' !&> c'_d
+    y9  = a_b'  !&> c'_d
+    y10 = a'_b  !&> c'_d
+    y11 = a_b   !&> c'_d
+    y12 = a'_b' !&> c_d
+    y13 = a_b'  !&> c_d
+    y14 = a'_b  !&> c_d
+    y15 = a_b   !&> c_d
 {-
     [y0]  = lc_nand [a', b', c', d']
     [y1]  = lc_nand [a , b', c', d']
@@ -159,9 +161,9 @@ True
 -}
 
 lc_multiplexer2ch :: LogicCircuit
-lc_multiplexer2ch (a:y0:y1:_) = lc_or (lc_and [a', y0] ++ lc_and [a, y1])
+lc_multiplexer2ch (a:y0:y1:_) = [a' &> y0 |> a &> y1]
   where
-    [a'] = lc_not [a]
+    a' = (!>) a
 
 lc_multiplexer2ch' :: LogicCircuit
 lc_multiplexer2ch' (False:y0:y1:_) = [y0]
@@ -190,13 +192,14 @@ True
 -}
 
 lc_multiplexer4ch :: LogicCircuit
-lc_multiplexer4ch (a:b:c0:c1:c2:c3:_) = lc_or (y0 ++ y1 ++ y2 ++ y3)
+lc_multiplexer4ch (a:b:c0:c1:c2:c3:_) = [y0 |> y1 |> y2 |> y3]
   where
-    [a', b'] = lc_not [a, b]
-    y0 = lc_and [c0, a', b']
-    y1 = lc_and [c1, a, b']
-    y2 = lc_and [c2, a', b]
-    y3 = lc_and [c3, a, b]
+    a' = (!>) a
+    b' = (!>) b
+    y0 = c0 &> a' &> b'
+    y1 = c1 &> a  &> b'
+    y2 = c2 &> a' &> b
+    y3 = c3 &> a  &> b
 
 lc_multiplexer4ch'' :: LogicCircuit
 lc_multiplexer4ch'' = multiplexer' 4
