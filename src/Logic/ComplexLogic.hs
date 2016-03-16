@@ -217,6 +217,45 @@ multiplexer' c xs = [xs'!!n]
     xs' = drop b xs
 
 
+-- ADDER ------------------------------
+
+{- |
+  1 bit full adder
+
+  IN : [Ci,A,B]
+  OUT: [C,S]
+
+    Ci  : carry in
+    C   : carry out
+    A,B : value
+    S   : answer
+
+>>> lc_adder [sLO, sLO, sLO] == [sLO, sLO]
+True
+>>> lc_adder [sLO, sLO, sHI] == [sLO, sHI]
+True
+>>> lc_adder [sLO, sHI, sLO] == [sLO, sHI]
+True
+>>> lc_adder [sLO, sHI, sHI] == [sHI, sLO]
+True
+>>> lc_adder [sHI, sLO, sLO] == [sLO, sHI]
+True
+>>> lc_adder [sHI, sLO, sHI] == [sHI, sLO]
+True
+>>> lc_adder [sHI, sHI, sLO] == [sHI, sLO]
+True
+>>> lc_adder [sHI, sHI, sHI] == [sHI, sHI]
+True
+
+-}
+
+lc_adder :: LogicCircuit
+lc_adder (ci:a:b:_) = [c, s]
+  where
+    a_xor_b = a <+> b
+    c = (a &> b) |> (ci &> a_xor_b)
+    s = ci <+> a_xor_b
+
 -- support functions
 
 {- |
