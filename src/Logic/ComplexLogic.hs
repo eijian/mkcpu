@@ -223,38 +223,94 @@ multiplexer' c xs = [xs'!!n]
   1 bit full adder
 
   IN : [Ci,A,B]
-  OUT: [C,S]
+  OUT: [S,S]
 
     Ci  : carry in
-    C   : carry out
     A,B : value
     S   : answer
+    C   : carry out
 
->>> lc_adder [sLO, sLO, sLO] == [sLO, sLO]
+>>> lc_adder1 [sLO, sLO, sLO] == [sLO, sLO]
 True
->>> lc_adder [sLO, sLO, sHI] == [sLO, sHI]
+>>> lc_adder1 [sLO, sLO, sHI] == [sHI, sLO]
 True
->>> lc_adder [sLO, sHI, sLO] == [sLO, sHI]
+>>> lc_adder1 [sLO, sHI, sLO] == [sHI, sLO]
 True
->>> lc_adder [sLO, sHI, sHI] == [sHI, sLO]
+>>> lc_adder1 [sLO, sHI, sHI] == [sLO, sHI]
 True
->>> lc_adder [sHI, sLO, sLO] == [sLO, sHI]
+>>> lc_adder1 [sHI, sLO, sLO] == [sHI, sLO]
 True
->>> lc_adder [sHI, sLO, sHI] == [sHI, sLO]
+>>> lc_adder1 [sHI, sLO, sHI] == [sLO, sHI]
 True
->>> lc_adder [sHI, sHI, sLO] == [sHI, sLO]
+>>> lc_adder1 [sHI, sHI, sLO] == [sLO, sHI]
 True
->>> lc_adder [sHI, sHI, sHI] == [sHI, sHI]
+>>> lc_adder1 [sHI, sHI, sHI] == [sHI, sHI]
+True
+
+-}
+
+lc_adder1 :: LogicCircuit
+lc_adder1 (ci:a:b:_) = [s, c]
+  where
+    a_xor_b = a <+> b
+    s = ci <+> a_xor_b
+    c = (a &> b) |> (ci &> a_xor_b)
+
+{- |
+  n bit full adder
+
+  IN : [A,B]
+  OUT: [S,C]
+
+>>> lc_adder [sLO, sLO, sLO, sLO] == [sLO, sLO, sLO]
+True
+>>> lc_adder [sHI, sLO, sLO, sLO] == [sHI, sLO, sLO]
+True
+>>> lc_adder [sLO, sHI, sLO, sLO] == [sLO, sHI, sLO]
+True
+>>> lc_adder [sHI, sHI, sLO, sLO] == [sHI, sHI, sLO]
+True
+>>> lc_adder [sLO, sLO, sHI, sLO] == [sHI, sLO, sLO]
+True
+>>> lc_adder [sHI, sLO, sHI, sLO] == [sLO, sHI, sLO]
+True
+>>> lc_adder [sLO, sHI, sHI, sLO] == [sHI, sHI, sLO]
+True
+>>> lc_adder [sHI, sHI, sHI, sLO] == [sLO, sLO, sHI]
+True
+>>> lc_adder [sLO, sLO, sLO, sHI] == [sLO, sHI, sLO]
+True
+>>> lc_adder [sHI, sLO, sLO, sHI] == [sHI, sHI, sLO]
+True
+>>> lc_adder [sLO, sHI, sLO, sHI] == [sLO, sLO, sHI]
+True
+>>> lc_adder [sHI, sHI, sLO, sHI] == [sHI, sLO, sHI]
+True
+>>> lc_adder [sLO, sLO, sHI, sHI] == [sHI, sHI, sLO]
+True
+>>> lc_adder [sHI, sLO, sHI, sHI] == [sLO, sLO, sHI]
+True
+>>> lc_adder [sLO, sHI, sHI, sHI] == [sHI, sLO, sHI]
+True
+>>> lc_adder [sHI, sHI, sHI, sHI] == [sLO, sHI, sHI]
+True
+>>> lc_adder [sLO, sHI, sHI, sHI, sHI] == [sHI, sLO, sHI]
 True
 
 -}
 
 lc_adder :: LogicCircuit
-lc_adder (ci:a:b:_) = [c, s]
+lc_adder ds = reverse $ adder_n sLO [] $ zip a b
   where
-    a_xor_b = a <+> b
-    c = (a &> b) |> (ci &> a_xor_b)
-    s = ci <+> a_xor_b
+    l2 = length ds `div` 2
+    a = take l2 ds
+    b = drop l2 ds
+
+adder_n :: Bin -> [Bin] -> [(Bin, Bin)] -> [Bin]
+adder_n ci ss [] = [ci] ++ ss
+adder_n ci ss ((a, b):ds) = adder_n c (s:ss) ds
+  where
+    [s, c] = lc_adder1 [ci, a, b]
 
 -- support functions
 
