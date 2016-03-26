@@ -4,7 +4,6 @@
 
 module Logic.FlipFlop (
   lc_srff
-, lc_dff
 , lc_dff_cp
 ) where
 

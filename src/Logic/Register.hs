@@ -176,7 +176,7 @@ True
 lc_counter4 :: LogicCircuit
 lc_counter4 (c:l:ds) = lc_register4 ([c, l, d0, d1, d2, d3] ++ b)
   where
-    bw = 4
+    bw = 4  -- bit width
     [a0, a1, a2, a3] = take bw ds
     b = take bw $ drop bw ds
     d0 = (!>) a0

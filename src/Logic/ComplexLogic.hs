@@ -7,6 +7,7 @@ module Logic.ComplexLogic (
 , lc_decorder4
 , lc_multiplexer2ch
 , lc_multiplexer4ch
+, lc_adder
 ) where
 
 import Logic.BasicGate
