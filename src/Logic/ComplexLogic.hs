@@ -224,7 +224,7 @@ multiplexer' c xs = [xs'!!n]
   1 bit full adder
 
   IN : [Ci,A,B]
-  OUT: [S,S]
+  OUT: [S,C]
 
     Ci  : carry in
     A,B : value
@@ -262,6 +262,10 @@ lc_adder1 (ci:a:b:_) = [s, c]
 
   IN : [A,B]
   OUT: [S,C]
+
+    A,B : value
+    S   : answer
+    C   : carry out
 
 >>> lc_adder [sLO, sLO, sLO, sLO] == [sLO, sLO, sLO]
 True
@@ -306,6 +310,16 @@ lc_adder ds = reverse $ adder_n sLO [] $ zip a b
     l2 = length ds `div` 2
     a = take l2 ds
     b = drop l2 ds
+
+{-
+  IN : Ci, [Si], [(Ai,Bi)]
+  OUT: [Si,C]
+
+    Ci    : carry in
+    Ai, Bi: value
+    Si    : Answer
+    C     : carry out
+-}
 
 adder_n :: Bin -> [Bin] -> [(Bin, Bin)] -> [Bin]
 adder_n ci ss [] = [ci] ++ ss
