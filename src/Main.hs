@@ -8,8 +8,11 @@ import Logic.FlipFlop
 import Logic.ComplexLogic
 import Logic.Register
 
-wsec = 1 :: Int  -- wait 1 sec
-inistat = toBits "0000" :: [Bin]
+wsec :: Int
+wsec = 1                  -- wait 1 sec
+
+inistat :: [Bin]
+inistat = toBits "0000"   -- initial state of Program Counter
 
 main :: IO ()
 main = loop lc_counter4 inistat
