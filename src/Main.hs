@@ -1,18 +1,26 @@
 
 module Main where
 
+import Control.Concurrent
+
 import Logic.BasicGate
+import Logic.FlipFlop
+import Logic.ComplexLogic
+import Logic.Register
+
+wsec = 1 :: Int  -- wait 1 sec
+inistat = toBits "0000" :: [Bin]
 
 main :: IO ()
-main = do
-  let i1 = [sHI, sHI, sHI]
-  putStrLn $ show $ lc_and i1
-  let i2 = [sHI, sLO, sHI]
-  putStrLn $ show $ lc_and i2
-  let i3 = [sHI, sLO, sLO]
-  putStrLn $ show $ lc_or i3
-  let i4 = [sLO, sLO, sLO]
-  putStrLn $ show $ lc_or i4
-  let i5 = [sLO, sHI, sLO]
-  putStrLn $ show $ lc_not i5
+main = loop lc_counter4 inistat
+
+loop :: LogicCircuit -> [Bin] -> IO ()
+loop lc is = do
+  let os = lc ([sHI, sHI] ++ is ++ toBits "0000")
+  putStatus os
+  threadDelay (wsec * 1000 * 1000)
+  loop lc os
+
+putStatus :: [Bin] -> IO ()
+putStatus os = putStrLn $ toStr os
 
