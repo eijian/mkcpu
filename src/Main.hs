@@ -9,7 +9,7 @@ import Logic.FlipFlop
 import Logic.ComplexLogic
 import Logic.Register
 
-wsec :: Int
+wsec :: Float
 wsec = 1                    -- wait 1 sec
 
 defInput :: [Bin]
@@ -20,20 +20,19 @@ main = do
   inistat <- getContents
   opts <- getArgs
   let (wait, iport) = parseOpts opts
-  loop lc_counter4 (toBits inistat) wait
+  loop wait lc_counter4 $ toBits inistat
 
-parseOpts :: [String] -> (Int, [Bin])
+parseOpts :: [String] -> (Float, [Bin])
 parseOpts [] = (wsec, defInput)
-parseOpts (x:zs) = ((read :: String -> Int) x, defInput)
+parseOpts (x:[]) = ((read :: String -> Float) x, defInput)
+parseOpts (x:y:_) = ((read :: String -> Float) x, toBits y)
 
-loop :: LogicCircuit -> [Bin] -> Int -> IO ()
-loop lc is w = do
+loop :: Float -> LogicCircuit -> [Bin] -> IO ()
+loop w lc is = do
   let os = lc ([sHI, sHI] ++ is ++ toBits "0000")
   putStatus os
-  threadDelay (w * 1000 * 1000)
-  loop lc os w
-
-
+  threadDelay $ floor (w * 1000 * 1000)
+  loop w lc os
 
 putStatus :: [Bin] -> IO ()
 putStatus os = putStrLn $ toStr os
