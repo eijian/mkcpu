@@ -126,7 +126,7 @@ True
 >>> split8 (i1 ++ i1) == [i1, i1]
 True
 >>> let i2 = toBits "110010"
->>> let i3 = toBits "11001011"
+>>> let i3 = toBits "11001000"
 >>> split8 (i1 ++ i2) == [i1, i3]
 True
 
