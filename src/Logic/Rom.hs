@@ -4,6 +4,7 @@
 
 module Logic.Rom (
   lc_rom16
+, split8
 ) where
 
 import Logic.BasicGate

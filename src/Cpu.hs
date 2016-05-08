@@ -4,12 +4,12 @@
 
 module Cpu (
   lc_td4
+, lc_td4_dummy
 , lc_inst_decorder
 ) where
 
 import Logic.BasicGate
 import Logic.ComplexLogic
-import Logic.Decorder
 import Logic.FlipFlop
 import Logic.Register
 import Logic.Rom
@@ -95,3 +95,28 @@ lc_inst_decorder (op0:op1:op2:op3:c:_) = [sa, sb, l0, l1, l2, l3]
     l2 = op2  |> nop3
     l3 = nop2 |> nop3 |> (nop0 &> c)
 
+{-
+lc_td4_dummy: for test of main routine
+  IN : [!C   clear (1),
+        CF   carry flag (1),
+        A    A register (4),
+        B    B register (4),
+        PC   program counter (4),
+        IP   input port (4),
+        ROM  ROM data 16 bytes (128)]
+  OUT: [CF   carry flag (1),
+        A    A register (4),
+        B    B register (4),
+        PC   program counter (4),
+        OP   output port (4)]
+
+-}
+
+lc_td4_dummy :: LogicCircuit
+lc_td4_dummy xs = concat [[sHI], a, b, pc, op]
+  where
+    rom = drop 18 xs
+    a   = take 4 rom
+    b   = take 4 (drop 4 rom)
+    pc  = take 4 (drop 8 rom)
+    op  = take 4 (drop 12 rom)
