@@ -98,6 +98,7 @@ True
 
 set_term :: [Bin] -> LogicCircuit
 set_term [] xs = xs
+set_term fs [] = fs
 set_term fs xs = zipWith (||) xs fs
 
 {- |

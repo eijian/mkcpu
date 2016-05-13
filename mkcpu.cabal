@@ -27,7 +27,7 @@ executable td4
   main-is:             Main-td4.hs
   -- other-modules:       
   -- other-extensions:    
-  build-depends:       base >= 4.8 && < 5
+  build-depends:       base >= 4 && < 5
 
 --
 -- TEST

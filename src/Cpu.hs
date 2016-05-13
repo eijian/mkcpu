@@ -4,7 +4,9 @@
 
 module Cpu (
   lc_td4
-, lc_td4_dummy
+, lc_td4_st0
+, lc_td4_st1
+, lc_td4_st2
 , lc_inst_decorder
 ) where
 
@@ -96,12 +98,13 @@ lc_inst_decorder (op0:op1:op2:op3:c:_) = [sa, sb, l0, l1, l2, l3]
     l3 = nop2 |> nop3 |> (nop0 &> c)
 
 {-
-lc_td4_dummy: for test of main routine
+lc_td4_st0: step 0 (through all inputs to outputs)
   IN : [!C   clear (1),
         CF   carry flag (1),
         A    A register (4),
         B    B register (4),
         PC   program counter (4),
+        OP   output port (4),
         IP   input port (4),
         ROM  ROM data 16 bytes (128)]
   OUT: [CF   carry flag (1),
@@ -112,11 +115,64 @@ lc_td4_dummy: for test of main routine
 
 -}
 
-lc_td4_dummy :: LogicCircuit
-lc_td4_dummy xs = concat [[sHI], a, b, pc, op]
+lc_td4_st0 :: LogicCircuit
+lc_td4_st0 xs = concat [cf, a, b, pc, op]
   where
-    rom = drop 18 xs
-    a   = take 4 rom
-    b   = take 4 (drop 4 rom)
-    pc  = take 4 (drop 8 rom)
-    op  = take 4 (drop 12 rom)
+    cl  = take 1 xs
+    cf  = take 1 (drop 1 xs)
+    a   = take 4 (drop 2 xs)
+    b   = take 4 (drop 6 xs)
+    pc  = take 4 (drop 10 xs)
+    op  = take 4 (drop 14 xs)
+    ip  = take 4 (drop 18 rom)
+    rom = drop 22 xs
+
+{-
+lc_td4_st1: step 1 (output via FlipFlop)
+
+-}
+
+lc_td4_st1 :: LogicCircuit
+lc_td4_st1 xs = concat [cf', a', b', pc', op']
+  where
+    cl  = take 1 xs
+    cf  = take 1 (drop 1 xs)
+    a   = take 4 (drop 2 xs)
+    b   = take 4 (drop 6 xs)
+    pc  = take 4 (drop 10 xs)
+    op  = take 4 (drop 14 xs)
+    ip  = take 4 (drop 18 rom)
+    rom = drop 22 xs
+    v0  = toBits "0000"
+    cf' = take 1 $ lc_dff_cp (cl ++ [sHI] ++ cf)
+    a'  = lc_register4 (cl ++ [sHI] ++ a  ++ v0)
+    b'  = lc_register4 (cl ++ [sHI] ++ b  ++ v0)
+    pc' = lc_counter4  (cl ++ [sHI] ++ pc ++ v0)
+    op' = lc_register4 (cl ++ [sHI] ++ op ++ v0)
+
+{-
+lc_td4_st2: step 2 (add immediate value to a)
+-}
+
+lc_td4_st2 :: LogicCircuit
+lc_td4_st2 xs = concat [cf', a', b', pc', op']
+  where
+    cl  = take 1 xs
+    cf  = take 1 (drop 1 xs)
+    a   = take 4 (drop 2 xs)
+    b   = take 4 (drop 6 xs)
+    pc  = take 4 (drop 10 xs)
+    op  = take 4 (drop 14 xs)
+    ip  = take 4 (drop 18 xs)
+    rom = drop 22 xs
+    rdata = lc_rom16 (pc ++ rom) -- get data addressed by PC
+    v0  = toBits "0000"
+    im  = take 4 rdata
+    ss  = lc_adder (a ++ im)
+    s0  = take 4 ss
+    c0  = drop 4 ss
+    cf' = take 1 $ lc_dff_cp (cl ++ [sHI] ++ c0)
+    a'  = lc_register4 (cl ++ [sLO] ++ a  ++ s0)
+    b'  = lc_register4 (cl ++ [sHI] ++ b  ++ v0)
+    pc' = lc_counter4  (cl ++ [sHI] ++ pc ++ v0)
+    op' = lc_register4 (cl ++ [sHI] ++ op ++ v0)

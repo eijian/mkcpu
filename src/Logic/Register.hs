@@ -107,7 +107,7 @@ lc_register w (c:l:ds)
 
 
 {- |
-Program Counter (4 bit)
+lc_counter4: Program Counter (4 bit)
 
   IN : [!CLR,!LD,A0,A1,A2,A3,B0,B1,B2,B3]
   OUT: [Q0,Q1,Q2,Q3]
