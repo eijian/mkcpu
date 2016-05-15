@@ -7,7 +7,6 @@ module Cpu (
 , lc_td4_st0
 , lc_td4_st1
 , lc_td4_st2
-, lc_inst_decorder
 ) where
 
 import Logic.BasicGate
@@ -16,32 +15,12 @@ import Logic.FlipFlop
 import Logic.Register
 import Logic.Rom
 
-{- |
-TD4 CPU
+{- CONSTANT -}
 
-  IN : [!C   clear (1),
-        CF   carry flag (1),
-        A    A register (4),
-        B    B register (4),
-        PC   program counter (4),
-        IP   input port (4),
-        ROM  ROM data 16 bytes (128)]
-  OUT: [CF   carry flag (1),
-        A    A register (4),
-        B    B register (4),
-        PC   program counter (4),
-        OP   output port (4)]
+zero :: [Bin]
+zero = toBits "0000"   -- used to input zero value for adder
 
--}
-
-lc_td4 :: LogicCircuit
-lc_td4 (c:cf:xs) = pc 
-  where
-    reg_a = take 4 xs
-    reg_b = take 4 (drop 4 xs)
-    pc    = take 4 (drop 8 xs)
-    ip    = take 4 (drop 12 xs)
-    rom   = drop 12 xs
+{- FUNCTIONS -}
 
 {- |
 instruction decorder
@@ -97,74 +76,51 @@ lc_inst_decorder (op0:op1:op2:op3:c:_) = [sa, sb, l0, l1, l2, l3]
     l2 = op2  |> nop3
     l3 = nop2 |> nop3 |> (nop0 &> c)
 
-{-
-lc_td4_st0: step 0 (through all inputs to outputs)
+{- |
+TD4 CPU
+
   IN : [!C   clear (1),
         CF   carry flag (1),
         A    A register (4),
         B    B register (4),
-        PC   program counter (4),
         OP   output port (4),
+        PC   program counter (4),
         IP   input port (4),
         ROM  ROM data 16 bytes (128)]
   OUT: [CF   carry flag (1),
         A    A register (4),
         B    B register (4),
-        PC   program counter (4),
-        OP   output port (4)]
-
+        OP   output port (4),
+        PC   program counter (4)
+       ]
 -}
+
+{- lc_td4_st0: step 0 (through all inputs to outputs) -}
 
 lc_td4_st0 :: LogicCircuit
-lc_td4_st0 xs = concat [cf, a, b, pc, op]
+lc_td4_st0 xs = concat [cf, a, b, op, pc]
   where
-    cl  = take 1 xs
-    cf  = take 1 (drop 1 xs)
-    a   = take 4 (drop 2 xs)
-    b   = take 4 (drop 6 xs)
-    pc  = take 4 (drop 10 xs)
-    op  = take 4 (drop 14 xs)
-    ip  = take 4 (drop 18 rom)
-    rom = drop 22 xs
+    [_, cf, a, b, op, pc, _, _] = splitInput xs
 
-{-
-lc_td4_st1: step 1 (output via FlipFlop)
-
--}
+{- lc_td4_st1: step 1 (output via FlipFlop) -}
 
 lc_td4_st1 :: LogicCircuit
-lc_td4_st1 xs = concat [cf', a', b', pc', op']
+lc_td4_st1 xs = concat [cf', a', b', op', pc']
   where
-    cl  = take 1 xs
-    cf  = take 1 (drop 1 xs)
-    a   = take 4 (drop 2 xs)
-    b   = take 4 (drop 6 xs)
-    pc  = take 4 (drop 10 xs)
-    op  = take 4 (drop 14 xs)
-    ip  = take 4 (drop 18 rom)
-    rom = drop 22 xs
+    [cl, cf, a, b, op, pc, _, _] = splitInput xs
     v0  = toBits "0000"
     cf' = take 1 $ lc_dff_cp (cl ++ [sHI] ++ cf)
     a'  = lc_register4 (cl ++ [sHI] ++ a  ++ v0)
     b'  = lc_register4 (cl ++ [sHI] ++ b  ++ v0)
-    pc' = lc_counter4  (cl ++ [sHI] ++ pc ++ v0)
     op' = lc_register4 (cl ++ [sHI] ++ op ++ v0)
+    pc' = lc_counter4  (cl ++ [sHI] ++ pc ++ v0)
 
-{-
-lc_td4_st2: step 2 (add immediate value to a)
--}
+{- lc_td4_st2: step 2 (add immediate value to a) -}
 
 lc_td4_st2 :: LogicCircuit
-lc_td4_st2 xs = concat [cf', a', b', pc', op']
+lc_td4_st2 xs = concat [cf', a', b', op', pc']
   where
-    cl  = take 1 xs
-    cf  = take 1 (drop 1 xs)
-    a   = take 4 (drop 2 xs)
-    b   = take 4 (drop 6 xs)
-    pc  = take 4 (drop 10 xs)
-    op  = take 4 (drop 14 xs)
-    ip  = take 4 (drop 18 xs)
-    rom = drop 22 xs
+    [cl, _, a, b, op, pc, _, rom] = splitInput xs
     rdata = lc_rom16 (pc ++ rom) -- get data addressed by PC
     v0  = toBits "0000"
     im  = take 4 rdata
@@ -174,5 +130,127 @@ lc_td4_st2 xs = concat [cf', a', b', pc', op']
     cf' = take 1 $ lc_dff_cp (cl ++ [sHI] ++ c0)
     a'  = lc_register4 (cl ++ [sLO] ++ a  ++ s0)
     b'  = lc_register4 (cl ++ [sHI] ++ b  ++ v0)
-    pc' = lc_counter4  (cl ++ [sHI] ++ pc ++ v0)
     op' = lc_register4 (cl ++ [sHI] ++ op ++ v0)
+    pc' = lc_counter4  (cl ++ [sHI] ++ pc ++ v0)
+
+{- |
+lc_td4: full TD4 cpu
+
+>>> let rom0 = take ((16-1) * 8) $ repeat '0'
+>>> -- ADD A,Im (A=1, Im=4 -> A=5, CF=0)
+>>> toStr $ lc_td4 $ toBits ("10 1000 0000 0000 0000 0000 00100000" ++ rom0)
+"01010000000001000"
+>>> -- ADD A,Im (A=13, Im=4 -> A=1, CF=1)
+>>> toStr $ lc_td4 $ toBits ("10 1011 0000 0000 0000 0000 00100000" ++ rom0)
+"11000000000001000"
+>>> -- MOV A,B (A=13, B=3 -> A=3)
+>>> toStr $ lc_td4 $ toBits ("10 1011 1100 0000 0000 0000 00001000" ++ rom0)
+"01100110000001000"
+>>> -- IN A (A=13, IP=8 -> A=8)
+>>> toStr $ lc_td4 $ toBits ("10 1011 0000 0000 0000 0001 00000100" ++ rom0)
+"00001000000001000"
+>>> -- MOV A,Im (A=13, Im=4 -> A=4)
+>>> toStr $ lc_td4 $ toBits ("10 1011 0000 0000 0000 0000 00101100" ++ rom0)
+"00010000000001000"
+>>> -- MOV B,A (A=13, B=4 -> B=13)
+>>> toStr $ lc_td4 $ toBits ("10 1011 0010 0000 0000 0000 00000010" ++ rom0)
+"01011101100001000"
+>>> -- ADD B,Im (B=1, Im=4 -> B=5, CF=0)
+>>> toStr $ lc_td4 $ toBits ("10 0000 1000 0000 0000 0000 01001010" ++ rom0)
+"00000110000001000"
+>>> -- ADD B,Im (B=13, Im=4 -> B=1, CF=1)
+>>> toStr $ lc_td4 $ toBits ("10 0000 1011 0000 0000 0000 00101010" ++ rom0)
+"10000100000001000"
+>>> -- IN B (B=13, IP=8 -> B=8)
+>>> toStr $ lc_td4 $ toBits ("10 0000 1011 0000 0000 0001 00000110" ++ rom0)
+"00000000100001000"
+>>> -- MOV B,Im (B=13, Im=4 -> B=4)
+>>> toStr $ lc_td4 $ toBits ("10 0000 1011 0000 0000 0000 00101110" ++ rom0)
+"00000001000001000"
+>>> -- OUT B (B=12 -> OP=12)
+>>> toStr $ lc_td4 $ toBits ("10 0000 0011 0000 0000 0000 00001001" ++ rom0)
+"00000001100111000"
+>>> -- OUT Im (Im=12 -> OP=12)
+>>> toStr $ lc_td4 $ toBits ("10 0000 0000 0000 0000 0000 00111101" ++ rom0)
+"00000000000111000"
+>>> -- OUT Im (PC=3, Im=4 -> OP=4, PC=4)
+>>> toStr $ lc_td4 $ toBits ("10 0000 0000 0000 0000 0000 00111101" ++ rom0)
+"00000000000111000"
+>>> -- JNC Im (Im=12, CF=0 -> PC=12)
+>>> toStr $ lc_td4 $ toBits ("10 0000 0000 0000 0000 0000 00110111" ++ rom0)
+"00000000000000011"
+>>> -- JNC Im (Im=12, CF=1 -> PC=1)
+>>> toStr $ lc_td4 $ toBits ("11 0000 0000 0000 0000 0000 00110111" ++ rom0)
+"00000000000001000"
+>>> -- JMP Im (Im=12, CF=0 -> PC=12)
+>>> toStr $ lc_td4 $ toBits ("10 0000 0000 0000 0000 0000 00111111" ++ rom0)
+"00000000000000011"
+>>> -- JMP Im (Im=12, CF=1 -> PC=12)
+>>> toStr $ lc_td4 $ toBits ("11 0000 0000 0000 0000 0000 00111111" ++ rom0)
+"00000000000000011"
+>>> -- JMP Im (Im=12, CF=0, OP=3, PC=0 -> PC=12)
+>>> toStr $ lc_td4 $ toBits ("10 0000 0000 1100 0000 0000 00111111" ++ rom0)
+"00000000011000011"
+
+-}
+
+lc_td4 :: LogicCircuit
+lc_td4 xs = concat [cf', a', b', op', pc']
+  where
+    [cl, cf, a, b, op, pc, ip, rom] = splitInput xs
+    rdata = lc_rom16 (pc ++ rom)
+    im    = take 4 rdata
+    inst  = drop 4 rdata
+    [sa, sb, ld0, ld1, ld2, ld3] = lc_inst_decorder (inst ++ cf)
+    ss  = lc_adder ((selectInput [sa, sb] a b ip zero) ++ im)
+    s0  = take 4 ss
+    c0  = drop 4 ss
+    cf' = take 1 $ lc_dff_cp (cl ++ [sHI] ++ c0)
+    a'  = lc_register4 (cl ++ [ld0] ++ a  ++ s0)
+    b'  = lc_register4 (cl ++ [ld1] ++ b  ++ s0)
+    op' = lc_register4 (cl ++ [ld2] ++ op ++ s0)
+    pc' = lc_counter4  (cl ++ [ld3] ++ pc ++ s0)
+
+{- split input -}
+
+splitInput :: [Bin] -> [[Bin]]
+splitInput xs = [cl, cf, a, b, op, pc, ip, rom]
+  where
+    cl  = take 1 xs
+    cf  = take 1 (drop 1 xs)
+    a   = take 4 (drop 2 xs)
+    b   = take 4 (drop 6 xs)
+    op  = take 4 (drop 10 xs)
+    pc  = take 4 (drop 14 xs)
+    ip  = take 4 (drop 18 xs)
+    rom = drop 22 xs
+
+-- select data for adder input
+
+{- |
+selectInput
+
+>>> let a  = toBits "1000"
+>>> let b  = toBits "0110"
+>>> let ip = toBits "0001"
+>>> toStr $ selectInput [sLO, sLO] a b ip zero
+"1000"
+>>> toStr $ selectInput [sHI, sLO] a b ip zero
+"0110"
+>>> toStr $ selectInput [sLO, sHI] a b ip zero
+"0001"
+>>> toStr $ selectInput [sHI, sHI] a b ip zero
+"0000"
+
+-}
+
+selectInput :: [Bin] -> [Bin] -> [Bin] -> [Bin] -> [Bin] -> [Bin]
+selectInput s a b ip z = concat $ map (\x -> lc_multiplexer4ch (s ++ x)) mi
+  where
+    mi = buildMultiplexerInput [a, b, ip, z]
+
+    buildMultiplexerInput :: [[Bin]] -> [[Bin]]
+    buildMultiplexerInput xs = map (\i -> pickBit i xs) [0..3]
+
+    pickBit :: Int -> [[Bin]] -> [Bin]
+    pickBit i xs = map (!!i) xs
