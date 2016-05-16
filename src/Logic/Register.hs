@@ -100,8 +100,7 @@ lc_register w (c:l:ds)
   | otherwise   = concat $ map (procReg1 c l) $ zip a b
   where
     len = length ds
-    a = take w ds
-    b = take w $ drop w ds
+    (a, b) = splitAt w ds
     procReg1 :: Bin -> Bin -> (Bin, Bin) -> [Bin]
     procReg1 c l (a, b) = lc_register1 [c, l, a, b]
 
@@ -177,8 +176,7 @@ lc_counter4 :: LogicCircuit
 lc_counter4 (c:l:ds) = lc_register4 ([c, l, d0, d1, d2, d3] ++ b)
   where
     bw = 4  -- bit width
-    [a0, a1, a2, a3] = take bw ds
-    b = take bw $ drop bw ds
+    ([a0, a1, a2, a3], b) = splitAt bw ds
     d0 = (!>) a0
     d1 = a1 <+> a0
     d2 = a2 <+> (a1 &> a0)

@@ -142,8 +142,7 @@ split w xs
   |length xs < w = [take w (xs ++ repeat sLO)]
   |otherwise     = l:(split w ls)
     where
-      l  = take w xs
-      ls = drop w xs
+      (l, ls) = splitAt w xs
 
 {-
 * バイト列から128bitのリスト作る

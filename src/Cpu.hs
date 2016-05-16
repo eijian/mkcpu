@@ -216,14 +216,13 @@ lc_td4 xs = concat [cf', a', b', op', pc']
 splitInput :: [Bin] -> [[Bin]]
 splitInput xs = [cl, cf, a, b, op, pc, ip, rom]
   where
-    cl  = take 1 xs
-    cf  = take 1 (drop 1 xs)
-    a   = take 4 (drop 2 xs)
-    b   = take 4 (drop 6 xs)
-    op  = take 4 (drop 10 xs)
-    pc  = take 4 (drop 14 xs)
-    ip  = take 4 (drop 18 xs)
-    rom = drop 22 xs
+    (cl, xs0) = splitAt 1 xs
+    (cf, xs1) = splitAt 1 xs0
+    (a , xs2) = splitAt 4 xs1
+    (b , xs3) = splitAt 4 xs2
+    (op, xs4) = splitAt 4 xs3
+    (pc, xs5) = splitAt 4 xs4
+    (ip, rom) = splitAt 4 xs5
 
 -- select data for adder input
 

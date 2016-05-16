@@ -308,8 +308,7 @@ lc_adder :: LogicCircuit
 lc_adder ds = reverse $ adder_n sLO [] $ zip a b
   where
     l2 = length ds `div` 2
-    a = take l2 ds
-    b = drop l2 ds
+    (a, b) = splitAt l2 ds
 
 {-
   IN : Ci, [Si], [(Ai,Bi)]
