@@ -45,4 +45,9 @@ Test-Suite doctest
                      , doctest >= 0.9.3
 
 
+Source-Repository head
+  Type:	               git
+  Location:            https://github.com/eijian/mkcpu.git
+
+
 
