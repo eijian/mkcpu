@@ -5,10 +5,35 @@ import Control.Applicative hiding ((<|>))
 import Data.Char
 import Text.Parsec
 import Text.Parsec.String
+import Text.Parsec.Char
 
 data Inst = Add | Mov | In | Out | Jnc | Jmp deriving (Enum, Show)
 data Operand = RegA | RegB | Imdata String deriving Show
 
+program :: Parser [(Inst, (Operand, Maybe Operand))]
+program = do
+  pg <- many1 $ instcode
+  return pg
+
+instcode :: Parser (Inst, (Operand, Maybe Operand))
+instcode = do
+  cd <- code2 <|> code1
+  many1 $ oneOf "\r\n"
+  return cd
+
+code2 :: Parser (Inst, (Operand, Maybe Operand))
+code2 = do
+  in2 <- inst2
+  many1 space
+  op2 <- operand2
+  return (in2, op2)
+
+code1 :: Parser (Inst, (Operand, Maybe Operand))
+code1 = do
+  in1 <- inst1
+  many1 space
+  op1 <- operand1
+  return (in1, (op1, Nothing))
 
 inst2 :: Parser Inst
 inst2 = do
@@ -87,6 +112,23 @@ main = do
   parseTest operand2 "a 1100"
   parseTest operand2 "a,1200"
   parseTest operand2 "aa,1100"
+  parseTest code2 "add a,b"
+  parseTest code2 "mov a,0011"
+  parseTest code2 "mov   a,0011"
+  parseTest code2 "in a"
+  parseTest code2 "jmp a,b"
+  parseTest code1 "jmp a"
+  parseTest code1 "jmp 1011"
+  parseTest code1 "add a"
+  parseTest code1 "jnc 1100"
+  parseTest code1 "in  b"
+  parseTest code1 "in  0110"
+  parseTest instcode "add a,b\n"
+  parseTest instcode "add a,b\r\n"
+  parseTest instcode "add a,b"
+  parseTest instcode "jmp 1100\r\n"
+  parseTest program "add a,1100\rjmp 1100\r\n"
+  parseTest program "add a,1100 jmp 1100\r\n"
   putStrLn "fin"
 
 
