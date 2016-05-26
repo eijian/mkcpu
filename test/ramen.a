@@ -1,0 +1,17 @@
+out 0111
+add a,0001
+jnc 0001
+add a,0001
+jnc 0011
+out 0110
+add a,0001
+jnc 0110
+add a,0001
+jnc 1000
+out 0000
+out 0100
+add a,0001
+jnc 1010
+out 1000
+jmp 1111
+

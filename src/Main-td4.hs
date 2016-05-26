@@ -1,5 +1,7 @@
 
-module Main where
+module Main (
+  main
+) where
 
 import Control.Concurrent
 import System.Environment
@@ -9,7 +11,7 @@ import Logic.BasicGate
 --import Logic.ComplexLogic
 --import Logic.Register
 import Logic.Rom
-import Cpu
+import Logic.Cpu
 
 {- DEFAULT VALUES -}
 

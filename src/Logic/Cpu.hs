@@ -2,7 +2,7 @@
 -- TD4 CPU
 --
 
-module Cpu (
+module Logic.Cpu (
   lc_td4
 , lc_td4_st0
 , lc_td4_st1
