@@ -9,4 +9,4 @@ module Asm.Mnemonic where
 
 data Inst = Add | Mov | In | Out | Jnc | Jmp deriving (Enum, Show)
 data Operand = RegA | RegB | Imdata String deriving Show
-
+type Mnemonic = (Inst, (Operand, Maybe Operand))

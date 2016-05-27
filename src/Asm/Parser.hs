@@ -1,7 +1,9 @@
 
+-- Rivision 1
+
 module Asm.Parser where
 
-import Control.Applicative hiding ((<|>))
+--import Control.Applicative hiding ((<|>), many)
 import Data.Char
 import Text.Parsec
 import Text.Parsec.String
@@ -9,59 +11,79 @@ import Text.Parsec.Char
 
 import Asm.Mnemonic
 
-program :: Parser [(Inst, (Operand, Maybe Operand))]
+program :: Parser [Mnemonic]
 program = do
-  pg <- many1 $ instcode
+  pg <- many1 $ line
   return pg
 
-instcode :: Parser (Inst, (Operand, Maybe Operand))
+line :: Parser Mnemonic
+line = do
+  in1 <- instcode
+  many1 endOfLine
+  return in1
+
+instcode :: Parser Mnemonic
 instcode = do
-  cd <- code2 <|> code1
-  many1 $ oneOf "\r\n"
+  cd <- inst_add <|> inst_mov <|> inst_in <|> inst_out <|> inst_jump
   return cd
 
-code2 :: Parser (Inst, (Operand, Maybe Operand))
-code2 = do
-  in2 <- inst2
+inst_add :: Parser Mnemonic
+inst_add = do
+  in1 <- string "add"
   many1 space
-  op2 <- operand2
-  return (in2, op2)
-
-code1 :: Parser (Inst, (Operand, Maybe Operand))
-code1 = do
-  in1 <- inst1
-  many1 space
-  op1 <- operand1
-  return (in1, (op1, Nothing))
-
-inst2 :: Parser Inst
-inst2 = do
-  i2 <- (string "add" <|> string "mov")
-  let i = if i2 == "add" then Add else Mov
-  return i
-
-inst1 :: Parser Inst
-inst1 = do
-  i1 <- (string "in" <|> string "out" <|>
-         try (string "jnc") <|> (string "jmp"))
-  let i = case i1 of
-            "in"  -> In
-            "out" -> Out
-            "jnc" -> Jnc
-            "jmp" -> Jmp
-  return i
-
-operand2 :: Parser (Operand, Maybe Operand)
-operand2 = do
-  op2 <- register
+  rg1 <- register
   char ','
-  op1 <- operand1
-  return $ (op2, Just op1)
+  im1 <- imdata
+  return (toInst in1, (rg1, Just im1))
 
-operand1 :: Parser Operand
-operand1 = do
-  op1 <- (register <|> imdata)
-  return op1
+inst_mov :: Parser Mnemonic
+inst_mov = do
+  in1 <- string "mov"
+  many1 space
+  op  <- try (op_mov1) <|> (try op_mov2 <|> op_mov3)
+  return (toInst in1, op)
+
+inst_in :: Parser Mnemonic
+inst_in = do
+  in1 <- string "in"
+  many1 space
+  rg <- register
+  return (toInst in1, (rg, Nothing))
+
+inst_out :: Parser Mnemonic
+inst_out = do
+  in1 <- string "out"
+  many1 space
+  op <- regB <|> imdata
+  return (toInst in1, (op, Nothing))
+
+inst_jump :: Parser Mnemonic
+inst_jump = do
+  in1 <- try (string "jnc") <|> (string "jmp")
+  many1 space
+  im <- imdata
+  return (toInst in1, (im, Nothing))
+
+op_mov1 :: Parser (Operand, Maybe Operand)
+op_mov1 = do
+  rg <- register
+  char ','
+  im <- imdata
+  return (rg, Just im)
+
+op_mov2 :: Parser (Operand, Maybe Operand)
+op_mov2 = do
+  op1 <- regA
+  char ','
+  op2 <- regB
+  return (op1, Just op2)
+
+op_mov3 :: Parser (Operand, Maybe Operand)
+op_mov3 = do
+  op1 <- regB
+  char ','
+  op2 <- regA
+  return (op1, Just op2)
 
 register :: Parser Operand
 register = do
@@ -83,6 +105,22 @@ imdata = do
   im <- count 4 (oneOf "01")
   return $ Imdata im
 
+{-
+eol :: Parser Char
+eol = do
+  e1 <- char '\r'
+  e2 <- many char '\n'
+  return e1
+-}
 
+-- support functions
 
+toInst :: String -> Inst
+toInst s = case s of
+             "add" -> Add
+             "mov" -> Mov
+             "in"  -> In
+             "out" -> Out
+             "jnc" -> Jnc
+             "jmp" -> Jmp
 
