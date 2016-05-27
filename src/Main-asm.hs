@@ -2,7 +2,6 @@
 
 module Main where
 
-import Data.Either
 import Text.Parsec
 
 import Asm.Parser
