@@ -1,28 +1,31 @@
-EBNF for TD4 assembler
+EBNF for TD4 assembler (rivision 1)
 
-  program = instcode , { instcode } ;
+  program  = instcode , { instcode } ;
 
-  instcode = ( code2 | code1 ) , linefeed
+  instcode = ( inst_add | inst_mov | inst_in | inst_out | inst_jump ) , linefeed
 
-  code2 = inst2, space, operand2
-  code1 = inst1, space, operand1
+  inst_add  = 'add' , space , register , "," , imdata
 
-  inst2 = 'add' | 'mov' ;
+  inst_mov  = 'mov' , space , ( op_mov1 | op_mov2 | op_mov3 )
+  op_mov1   = register , "," , imdata
+  op_mov2   = reg_a    , "," , reg_b
+  op_mov3   = reg_b    , "," , reg_a
+  
+  inst_in   = 'in'  , space , register
+  inst_out  = 'out' , space , ( reg_b | imdata)
 
-  inst1 = 'in' | 'out' | 'jnc' | 'jmp' ;
+  inst_jump = ( 'jnc' | 'jmp' ) , space , imdata
 
-  operand2 = register , "," , operand1 ;
+  register  = reg_a | reg_b ;
+  reg_a     = 'a' ;
+  reg_b     = 'b' ;
 
-  operand1 = register | imdata ;
+  imdata    = 4 * digit2 ;
 
-  register = 'a' | 'b' ;
+  digit2    = "0" | "1" ;
 
-  imdata = 4 * digit2 ;
-
-  digit2 = "0" | "1" ;
-
-  space = white space , { white space } ;
+  space     = white space , { white space } ;
   white space = '\x20' | '\x09' ;
 
-  linefeed = '\x0a' | ( '\x0d' , '\x0a' ) ;
+  linefeed  = '\x0a' | ( '\x0d' , '\x0a' ) ;
 

@@ -1,0 +1,28 @@
+EBNF for TD4 assembler
+
+  program = instcode , { instcode } ;
+
+  instcode = ( code2 | code1 ) , linefeed
+
+  code2 = inst2, space, operand2
+  code1 = inst1, space, operand1
+
+  inst2 = 'add' | 'mov' ;
+
+  inst1 = 'in' | 'out' | 'jnc' | 'jmp' ;
+
+  operand2 = register , "," , operand1 ;
+
+  operand1 = register | imdata ;
+
+  register = 'a' | 'b' ;
+
+  imdata = 4 * digit2 ;
+
+  digit2 = "0" | "1" ;
+
+  space = white space , { white space } ;
+  white space = '\x20' | '\x09' ;
+
+  linefeed = '\x0a' | ( '\x0d' , '\x0a' ) ;
+
