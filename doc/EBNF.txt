@@ -7,14 +7,16 @@ EBNF for TD4 assembler (rivision 1)
   inst_add  = 'add' , space , register , "," , imdata
 
   inst_mov  = 'mov' , space , ( op_mov1 | op_mov2 | op_mov3 )
-  op_mov1   = register , "," , imdata
-  op_mov2   = reg_a    , "," , reg_b
-  op_mov3   = reg_b    , "," , reg_a
   
   inst_in   = 'in'  , space , register
+
   inst_out  = 'out' , space , ( reg_b | imdata)
 
   inst_jump = ( 'jnc' | 'jmp' ) , space , imdata
+
+  op_mov1   = register , "," , imdata
+  op_mov2   = reg_a    , "," , reg_b
+  op_mov3   = reg_b    , "," , reg_a
 
   register  = reg_a | reg_b ;
   reg_a     = 'a' ;
