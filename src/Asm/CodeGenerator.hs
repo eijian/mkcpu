@@ -4,15 +4,12 @@ module Asm.CodeGenerator where
 import Text.Parsec
 import Asm.Mnemonic
 
-generate :: Either ParseError [(Inst, (Operand, Maybe Operand))] -> [String]
-generate (Left s)  = [show s]
-generate (Right m) = translate m
+generate :: Either ParseError [Mnemonic] -> [String]
+generate (Left s)       = [show s]
+generate (Right [])     = []
+generate (Right (x:xs)) = (translateOne x):(generate $ Right xs)
 
-translate :: [(Inst, (Operand, Maybe Operand))] -> [String]
-translate []     = []
-translate (x:xs) = (translateOne x):(translate xs)
-
-translateOne :: (Inst, (Operand, Maybe Operand)) -> String
+translateOne :: Mnemonic -> String
 translateOne (Add, (RegA, Just (Imdata s))) = "0000" ++ s
 translateOne (Mov, (RegA, Just RegB))       = "00010000"
 translateOne (In , (RegA, Nothing))         = "00100000"
