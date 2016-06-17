@@ -1,5 +1,5 @@
 
--- Rivision 1
+-- Revision 1
 
 module Asm.Parser where
 
