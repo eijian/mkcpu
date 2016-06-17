@@ -1,4 +1,4 @@
-EBNF for TD4 assembler (rivision 1)
+EBNF for TD4 assembler (revision 1)
 
   program  = line , { line }
   line      = instcode , linefeed
