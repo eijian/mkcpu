@@ -1,18 +1,18 @@
 EBNF for TD4 assembler (revision 1)
 
-  program  = line , { line }
-  line      = instcode , linefeed
+  program  = line , { line } ;
+  line      = instcode , linefeed ;
 
-  instcode = inst_add | inst_mov | inst_in | inst_out | inst_jump
-  inst_add  = 'add' , space , register , "," , imdata
-  inst_mov  = 'mov' , space , ( op_mov1 | op_mov2 | op_mov3 )
-  inst_in   = 'in'  , space , register
-  inst_out  = 'out' , space , ( reg_b | imdata)
-  inst_jump = ( 'jnc' | 'jmp' ) , space , imdata
+  instcode = inst_add | inst_mov | inst_in | inst_out | inst_jump ;
+  inst_add  = 'add' , space , register , "," , imdata ;
+  inst_mov  = 'mov' , space , ( op_mov1 | op_mov2 | op_mov3 ) ;
+  inst_in   = 'in'  , space , register ;
+  inst_out  = 'out' , space , ( reg_b | imdata) ;
+  inst_jump = ( 'jnc' | 'jmp' ) , space , imdata ;
 
-  op_mov1   = register , "," , imdata
-  op_mov2   = reg_a    , "," , reg_b
-  op_mov3   = reg_b    , "," , reg_a
+  op_mov1   = register , "," , imdata ;
+  op_mov2   = reg_a    , "," , reg_b ;
+  op_mov3   = reg_b    , "," , reg_a ;
 
   register  = reg_a | reg_b ;
   reg_a     = 'a' ;
